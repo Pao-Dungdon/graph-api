@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 
 from get_transcripts import (
     get_access_token, get_user_id, get_calendar_events,
@@ -14,6 +13,20 @@ st.set_page_config(
     page_icon="📋",
     layout="wide",
 )
+
+# ─── Password protection ─────────────────────────────────────────────────────
+APP_PASSWORD = st.secrets.get("APP_PASSWORD", "")
+
+if not st.session_state.get("authenticated"):
+    st.title("📋 ระบบ AI สรุปผลการประชุม")
+    pwd = st.text_input("กรุณาใส่รหัสผ่าน", type="password")
+    if st.button("เข้าสู่ระบบ"):
+        if pwd == APP_PASSWORD:
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("รหัสผ่านไม่ถูกต้อง")
+    st.stop()
 
 # ─── ค่า config ที่ซ่อนไว้ (ไม่แสดงใน UI) ───────────────────────────────────
 tenant_id     = TENANT_ID

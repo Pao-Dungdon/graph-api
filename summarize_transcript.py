@@ -3,7 +3,7 @@ import os
 import google.generativeai as genai
 
 # ===== CONFIG =====
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyBw0ce1uxdmz-yhe6911K34Jez-w_yIpqY")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 VTT_DIR        = "C:\\Users\\dungdon.pon\\Documents\\graph-api\\meeting"           # folder ที่เก็บไฟล์ .vtt
 OUTPUT_DIR     = "C:\\Users\\dungdon.pon\\Documents\\graph-api"             # folder ที่จะ save ไฟล์ .txt
 # ==================

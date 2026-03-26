@@ -1,12 +1,13 @@
+import os
 import requests
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 
 # ===== CONFIG =====
-TENANT_ID     = "5a12c187-c285-4bea-8b0d-bbad28317395"
-CLIENT_ID     = "927647b7-fc5a-47b9-817a-c037087b4e7f"
-CLIENT_SECRET = "pf58Q~ZvxOO2Qovdli0fT2qOMqpy3UvykcXtBa2d"
-TARGET_USER   = "thunyaporn.tra@cosmic-3c.com"
+TENANT_ID     = os.environ.get("TEAMS_TENANT_ID",     "5a12c187-c285-4bea-8b0d-bbad28317395")
+CLIENT_ID     = os.environ.get("TEAMS_CLIENT_ID",     "927647b7-fc5a-47b9-817a-c037087b4e7f")
+CLIENT_SECRET = os.environ.get("TEAMS_CLIENT_SECRET", "pf58Q~ZvxOO2Qovdli0fT2qOMqpy3UvykcXtBa2d")
+TARGET_USER   = os.environ.get("TEAMS_TARGET_USER",   "thunyaporn.tra@cosmic-3c.com")
 DAYS_BACK     = 30
 # ==================
 
@@ -14,12 +15,15 @@ DAYS_BACK     = 30
 class AppAccessPolicyError(RuntimeError):
     pass
 
-def get_access_token():
-    url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token"
+def get_access_token(tenant_id=None, client_id=None, client_secret=None):
+    tid     = tenant_id     or TENANT_ID
+    cid     = client_id     or CLIENT_ID
+    csecret = client_secret or CLIENT_SECRET
+    url = f"https://login.microsoftonline.com/{tid}/oauth2/v2.0/token"
     data = {
         "grant_type":    "client_credentials",
-        "client_id":     CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
+        "client_id":     cid,
+        "client_secret": csecret,
         "scope":         "https://graph.microsoft.com/.default",
     }
     r = requests.post(url, data=data)

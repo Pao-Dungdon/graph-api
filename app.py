@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 from get_transcripts import (
     get_access_token, get_user_id, get_calendar_events,

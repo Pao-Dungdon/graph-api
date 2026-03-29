@@ -2,12 +2,15 @@ import os
 import requests
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ===== CONFIG =====
-TENANT_ID     = os.environ.get("TEAMS_TENANT_ID",     "")
-CLIENT_ID     = os.environ.get("TEAMS_CLIENT_ID",     "")
-CLIENT_SECRET = os.environ.get("TEAMS_CLIENT_SECRET", "")
-TARGET_USER   = os.environ.get("TEAMS_TARGET_USER",   "")
+TENANT_ID     = os.environ.get("TENANT_ID",     "")
+CLIENT_ID     = os.environ.get("CLIENT_ID",     "")
+CLIENT_SECRET = os.environ.get("CLIENT_SECRET", "")
+TARGET_USER   = os.environ.get("TARGET_USER",   "")
 DAYS_BACK     = 30
 # ==================
 

@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 # ─── Password protection ─────────────────────────────────────────────────────
-APP_PASSWORD = st.secrets.get("APP_PASSWORD", "")
+APP_PASSWORD = st.secrets.get("APP_PASSWORD", "AIT3C@ai")
 
 if not st.session_state.get("authenticated"):
     st.title("📋 ระบบ AI สรุปผลการประชุม")

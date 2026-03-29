@@ -1,9 +1,15 @@
 import re
 import os
-import google.generativeai as genai
+from openai import AzureOpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ===== CONFIG =====
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+AZURE_OPENAI_ENDPOINT   = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
+AZURE_OPENAI_API_KEY    = os.environ.get("AZURE_OPENAI_API_KEY", "")
+AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+AZURE_OPENAI_DEPLOYMENT = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-5-mini")
 VTT_DIR        = "C:\\Users\\dungdon.pon\\Documents\\graph-api\\meeting"           # folder ที่เก็บไฟล์ .vtt
 OUTPUT_DIR     = "C:\\Users\\dungdon.pon\\Documents\\graph-api"             # folder ที่จะ save ไฟล์ .txt
 # ==================
@@ -32,10 +38,14 @@ def parse_vtt(vtt_path: str) -> str:
     return parse_vtt_string(content)
 
 
-def summarize_with_gemini(transcript_text: str, meeting_name: str, api_key: str = None) -> str:
-    key = api_key or GEMINI_API_KEY
-    genai.configure(api_key=key)
-    model = genai.GenerativeModel("gemini-2.5-flash")
+def summarize_with_azure_openai(transcript_text: str, meeting_name: str,
+                                 endpoint: str = None, api_key: str = None,
+                                 api_version: str = None, deployment: str = None) -> str:
+    client = AzureOpenAI(
+        azure_endpoint=endpoint or AZURE_OPENAI_ENDPOINT,
+        api_key=api_key or AZURE_OPENAI_API_KEY,
+        api_version=api_version or AZURE_OPENAI_API_VERSION,
+    )
 
     prompt = f"""คุณคือผู้ช่วยสรุปผลการประชุม กรุณาสรุปจาก transcript ด้านล่างเป็นภาษาไทย โดยแบ่งเป็นหัวข้อดังนี้:
 
@@ -48,8 +58,14 @@ def summarize_with_gemini(transcript_text: str, meeting_name: str, api_key: str 
 {transcript_text}
 """
 
-    response = model.generate_content(prompt)
-    return response.text
+    response = client.chat.completions.create(
+        model=deployment or AZURE_OPENAI_DEPLOYMENT,
+        messages=[
+            {"role": "system", "content": "คุณคือผู้ช่วย AI สำหรับสรุปผลการประชุม"},
+            {"role": "user", "content": prompt},
+        ],
+    )
+    return response.choices[0].message.content
 
 
 def process_vtt_file(vtt_path: str):
@@ -61,8 +77,8 @@ def process_vtt_file(vtt_path: str):
         print("  ไม่พบเนื้อหาใน transcript")
         return
 
-    print(f"  Transcript length: {len(transcript)} chars — sending to Gemini...")
-    summary = summarize_with_gemini(transcript, meeting_name)
+    print(f"  Transcript length: {len(transcript)} chars — sending to Azure OpenAI...")
+    summary = summarize_with_azure_openai(transcript, meeting_name)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     out_path = os.path.join(OUTPUT_DIR, f"{meeting_name}_summary.txt")

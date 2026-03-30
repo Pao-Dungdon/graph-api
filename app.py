@@ -39,6 +39,14 @@ azure_endpoint   = st.secrets.get("AZURE_OPENAI_ENDPOINT",   "")
 azure_api_ver    = st.secrets.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
 azure_deployment = st.secrets.get("AZURE_OPENAI_DEPLOYMENT",  "gpt-5-mini")
 
+# ─── ตรวจสอบว่า Secrets ถูกตั้งค่าแล้ว ──────────────────────────────────────
+if not tenant_id:
+    st.error(
+        "⚠️ ยังไม่ได้ตั้งค่า Secrets บน Streamlit Cloud\n\n"
+        "ไปที่ **Settings → Secrets** แล้วเพิ่มค่า `TENANT_ID`, `CLIENT_ID`, `CLIENT_SECRET` ฯลฯ"
+    )
+    st.stop()
+
 # ─── Header ─────────────────────────────────────────────────────────────────
 st.title("📋 ระบบ AI สรุปผลการประชุม")
 st.caption("จาก Microsoft Teams · ขับเคลื่อนด้วย Azure OpenAI")

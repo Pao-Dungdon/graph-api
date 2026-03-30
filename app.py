@@ -6,7 +6,7 @@ from get_transcripts import (
     get_meeting_by_join_url, get_transcripts, get_transcript_content,
     TENANT_ID, CLIENT_ID, CLIENT_SECRET, TARGET_USER,
 )
-from summarize_transcript import parse_vtt_string, summarize_with_gemini, GEMINI_API_KEY
+from summarize_transcript import parse_vtt_string, summarize_with_azure_openai, AZURE_OPENAI_API_KEY
 
 # ─── Page config ────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -33,11 +33,11 @@ if not st.session_state.get("authenticated"):
 tenant_id     = TENANT_ID
 client_id     = CLIENT_ID
 client_secret = CLIENT_SECRET
-gemini_key    = GEMINI_API_KEY
+azure_openai_key = AZURE_OPENAI_API_KEY
 
 # ─── Header ─────────────────────────────────────────────────────────────────
 st.title("📋 ระบบ AI สรุปผลการประชุม")
-st.caption("จาก Microsoft Teams · ขับเคลื่อนด้วย Google Gemini AI")
+st.caption("จาก Microsoft Teams · ขับเคลื่อนด้วย Azure OpenAI")
 st.divider()
 
 # ─── Step 1: ดึงรายการประชุม ────────────────────────────────────────────────
@@ -128,16 +128,17 @@ if "events" in st.session_state:
             subject       = selected_event.get("subject", "การประชุม")
             meeting_id    = selected_event["_meeting_id"]
             transcript_id = selected_event["_transcript_id"]
-            token         = st.session_state.token
+            # ดึง token ใหม่เสมอ เพราะอาจหมดอายุหลังจากดึงรายการประชุม
             user_id       = st.session_state.user_id
 
             try:
                 with st.spinner("กำลังดึง transcript จาก Teams..."):
+                    token = get_access_token(tenant_id, client_id, client_secret)
                     vtt_content = get_transcript_content(token, user_id, meeting_id, transcript_id)
                     plain_text  = parse_vtt_string(vtt_content)
 
-                with st.spinner("กำลังสรุปด้วย Gemini AI..."):
-                    summary = summarize_with_gemini(plain_text, subject, api_key=gemini_key)
+                with st.spinner("กำลังสรุปด้วย Azure OpenAI..."):
+                    summary = summarize_with_azure_openai(plain_text, subject, api_key=azure_openai_key)
                     st.session_state.summary      = summary
                     st.session_state.summary_name = subject
 
